@@ -574,7 +574,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void hideImportProgress() {
 		pnlImportProgress.setVisibility(View.INVISIBLE);
-		btnImport.setVisibility(View.VISIBLE);
+		btnImport.setVisibility(View.GONE);
 	}
 
 	@Override

@@ -39,7 +39,8 @@ public class ColorMap {
 		onThemeColorChangeListeners = new ArrayList<>();
 		this.prefs = prefs;
 		if (prefs.isFirstRun()) {
-			selected = THEME_GRAY;
+			selected = THEME_TEAL;
+			prefs.setAppThemeColor(2);
 		} else {
 			selected = prefs.getThemeColor();
 		}

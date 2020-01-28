@@ -139,7 +139,7 @@ public class PrefsImpl implements Prefs {
 
 	@Override
 	public int getThemeColor() {
-		return sharedPreferences.getInt(PREF_KEY_THEME_COLORMAP_POSITION, 0);
+		return sharedPreferences.getInt(PREF_KEY_THEME_COLORMAP_POSITION, 2);
 	}
 
 	@Override
