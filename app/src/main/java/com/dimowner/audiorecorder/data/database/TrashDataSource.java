@@ -65,6 +65,8 @@ public class TrashDataSource extends DataSource<Record> {
 			values.put(SQLiteHelper.COLUMN_DATA, item.getData());
 			//TODO: Remove this field from database.
 			values.put(SQLiteHelper.COLUMN_DATA_STR, "");
+			values.put(SQLiteHelper.COLUMN_SELECTED,item.getSelected());
+			values.put(SQLiteHelper.COLUMN_DEPT,item.getSelected());
 			return values;
 		} else {
 			Timber.e("Can't convert Record with empty Name!");
@@ -84,7 +86,10 @@ public class TrashDataSource extends DataSource<Record> {
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_PATH)),
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_BOOKMARK)) != 0,
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_WAVEFORM_PROCESSED)) != 0,
-				cursor.getBlob(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA))
+				cursor.getBlob(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA)),
+						cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_PATIENT_ID)),
+				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_SELECTED)),
+				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_DEPT))
 //				Record.stringToArray(
 //						cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA_STR)))
 		);

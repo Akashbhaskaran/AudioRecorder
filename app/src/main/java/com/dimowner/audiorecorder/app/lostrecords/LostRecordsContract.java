@@ -31,7 +31,7 @@ public interface LostRecordsContract {
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<LostRecordsContract.View> {
-		void onRecordInfo(String name, long duration, String location, long created);
+		void onRecordInfo(String name, long duration, String location, long created,String patient_id,String dept);
 		void deleteRecord(RecordItem record);
 		void deleteRecords(List<RecordItem> list);
 	}

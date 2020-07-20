@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.dimowner.audiorecorder.AppConstants;
+import com.dimowner.audiorecorder.app.settings.SettingsActivity;
+import com.dimowner.audiorecorder.app.settings.SettingsContract;
 
 /**
  * App preferences implementation
@@ -65,7 +67,8 @@ public class PrefsImpl implements Prefs {
 
 	@Override
 	public boolean isFirstRun() {
-		return !sharedPreferences.contains(PREF_KEY_IS_FIRST_RUN) || sharedPreferences.getBoolean(PREF_KEY_IS_FIRST_RUN, false);
+		setFormat(AppConstants.RECORDING_FORMAT_WAV);
+	return !sharedPreferences.contains(PREF_KEY_IS_FIRST_RUN) || sharedPreferences.getBoolean(PREF_KEY_IS_FIRST_RUN, false);
 	}
 
 	@Override

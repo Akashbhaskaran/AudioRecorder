@@ -81,7 +81,7 @@ public class TrashActivity extends Activity implements TrashContract.View {
 		adapter.setOnItemClickListener(new TrashAdapter.OnItemClickListener() {
 			@Override
 			public void onItemClick(RecordItem record) {
-				presenter.onRecordInfo(FileUtil.removeFileExtension(record.getName()), record.getDuration()/1000, record.getPath(), record.getCreated());
+				presenter.onRecordInfo(FileUtil.removeFileExtension(record.getName()), record.getDuration()/1000, record.getPath(), record.getCreated(),record.getPatient_id(),record.getDept());
 			}
 
 			@Override
@@ -157,6 +157,11 @@ public class TrashActivity extends Activity implements TrashContract.View {
 	@Override
 	public void showMessage(int resId) {
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void showMessage(String text) {
+		Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
 	}
 
 	@Override

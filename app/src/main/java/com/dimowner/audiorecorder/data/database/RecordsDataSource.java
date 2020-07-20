@@ -19,6 +19,8 @@ package com.dimowner.audiorecorder.data.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
+
 import timber.log.Timber;
 
 /**
@@ -59,8 +61,12 @@ public class RecordsDataSource extends DataSource<Record> {
 			values.put(SQLiteHelper.COLUMN_BOOKMARK, item.isBookmarked() ? 1 : 0);
 			values.put(SQLiteHelper.COLUMN_WAVEFORM_PROCESSED, item.isWaveformProcessed() ? 1 : 0);
 			values.put(SQLiteHelper.COLUMN_DATA, item.getData());
+			values.put(SQLiteHelper.COLUMN_PATIENT_ID, item.getPatient_id());
+			values.put(SQLiteHelper.COLUMN_SELECTED,item.getSelected());
+			values.put(SQLiteHelper.COLUMN_DEPT,item.getDept());
 			//TODO: Remove this field from database.
 			values.put(SQLiteHelper.COLUMN_DATA_STR, "");
+			Log.e("values",String.valueOf(values));
 			return values;
 		} else {
 			Timber.e("Can't convert Record with empty Name!");
@@ -80,9 +86,13 @@ public class RecordsDataSource extends DataSource<Record> {
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_PATH)),
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_BOOKMARK)) != 0,
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_WAVEFORM_PROCESSED)) != 0,
-				cursor.getBlob(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA))
+				cursor.getBlob(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA)),
+				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_PATIENT_ID)),
+						cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_SELECTED)),
+				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_DEPT))
 //				Record.stringToArray(
 //						cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA_STR)))
+
 		);
 	}
 }

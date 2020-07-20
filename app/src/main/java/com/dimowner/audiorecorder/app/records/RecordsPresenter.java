@@ -16,7 +16,15 @@
 
 package com.dimowner.audiorecorder.app.records;
 
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.support.annotation.RequiresApi;
+import android.util.Log;
+import android.widget.Toast;
+
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
@@ -36,6 +44,7 @@ import com.dimowner.audiorecorder.exception.ErrorParser;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
+import com.dimowner.audiorecorder.util.UploadUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +53,7 @@ import timber.log.Timber;
 
 public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
-	private RecordsContract.View view;
+	private static RecordsContract.View view;
 	private final PlayerContract.Player audioPlayer;
 	private AppRecorder appRecorder;
 	private PlayerContract.PlayerCallback playerCallback;
@@ -214,6 +223,27 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
+	public void updatePatientID(final String patientID, final long recordId) {
+		loadingTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				Record record = localRepository.getRecord((int) recordId);
+				record.setPatient_id(patientID);
+				if (localRepository.updateRecord(record)) {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.hideProgress();
+							}
+						}
+					});
+				}
+			}
+		});
+	}
+
+	@Override
 	public void pausePlayback() {
 		if (audioPlayer.isPlaying()) {
 			audioPlayer.pause();
@@ -255,7 +285,8 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			@Override
 			public void run() {
 				localRepository.deleteRecord((int) id);
-//				fileRepository.deleteRecordFile(path);
+				localRepository.removeFromTrash((int)id);
+				fileRepository.deleteRecordFile(path);
 				if (rec != null && rec.getId() == id) {
 					prefs.setActiveRecord(-1);
 					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
@@ -278,7 +309,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
-	public void renameRecord(final long id, String n) {
+	public void renameRecord(final long id, String n, final String patientId) {
 		if (id < 0 || n == null || n.isEmpty()) {
 			AndroidUtils.runOnUIThread(new Runnable() {
 				@Override public void run() {
@@ -293,17 +324,17 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		loadingTasks.postRunnable(new Runnable() {
 			@Override public void run() {
 //				TODO: This code need to be refactored!
-				Record rec2 = localRepository.getRecord((int)id);
+				final Record rec2 = localRepository.getRecord((int)id);
 //				String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
 				if (rec2 != null) {
-					String nameWithExt;
+					final String nameWithExt;
 					if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
 						nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.WAV_EXTENSION;
 					} else {
 						nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
 					}
 					File file = new File(rec2.getPath());
-					File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
+					final File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
 
 					if (renamed.exists()) {
 						AndroidUtils.runOnUIThread(new Runnable() {
@@ -314,6 +345,8 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 								}
 							}
 						});
+
+
 					} else {
 						String ext;
 						if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
@@ -324,7 +357,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						if (fileRepository.renameFile(rec2.getPath(), name, ext)) {
 							activeRecord = new Record(rec2.getId(), nameWithExt, rec2.getDuration(), rec2.getCreated(),
 									rec2.getAdded(), rec2.getRemoved(), renamed.getAbsolutePath(), rec2.isBookmarked(),
-									rec2.isWaveformProcessed(), rec2.getAmps());
+									rec2.isWaveformProcessed(), rec2.getAmps(),patientId,rec2.getSelected(),rec2.getDept());
 							if (localRepository.updateRecord(activeRecord)) {
 								AndroidUtils.runOnUIThread(new Runnable() {
 									@Override
@@ -415,6 +448,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				public void run() {
 					final int order = prefs.getRecordsOrder();
 					final List<Record> recordList = localRepository.getRecords(0, order);
+					localRepository.updateSelectionsToZero();
 					final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
 					activeRecord = rec;
 					if (rec != null) {
@@ -585,6 +619,12 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 									} else {
 										view.removedFromBookmarks(rec.getId(), true);
 									}
+
+									if (rec.getSelected()==1) {
+										view.addedToSelection(rec.getId(), true);
+									} else {
+										view.removedFromSelection(rec.getId(), true);
+									}
 								}
 							}
 						});
@@ -632,6 +672,34 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							}
 						}
 					});
+				}
+			}
+		});
+	}
+
+	@Override
+	public void addToSelection(final int id) {
+        Log.e("addtoselection","entered record presenter");
+		recordingsTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				final Record r = localRepository.getRecord(id);
+				if (r != null) {
+					localRepository.addToSelection(r.getId());
+					}
+
+			}
+		});
+	}
+
+	@Override
+	public void removeFromSelection(final int id) {
+		recordingsTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				final Record r = localRepository.getRecord(id);
+				if (r != null) {
+					localRepository.removeFromSelection(r.getId());
 				}
 			}
 		});
@@ -699,7 +767,16 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		}
 	}
 
-	@Override
+    @Override
+    public String getActiveRecordPatientId() {
+        if (activeRecord != null) {
+            return activeRecord.getPatient_id();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
 	public String getRecordName() {
 		if (activeRecord != null) {
 			return FileUtil.removeFileExtension(activeRecord.getName());
@@ -709,7 +786,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
-	public void onRecordInfo(String name, long duration, String location, long created) {
+	public void onRecordInfo(String name, long duration, String location, long created,String patient_id,String dept) {
 		String format;
 		if (location.contains(AppConstants.M4A_EXTENSION)) {
 			format = AppConstants.M4A_EXTENSION;
@@ -718,7 +795,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		} else {
 			format = "";
 		}
-		view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created));
+		view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created,patient_id,dept));
 	}
 
 	@Override
@@ -730,4 +807,149 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	public void enablePlaybackProgressListener() {
 		listenPlaybackProgress = true;
 	}
+
+	@Override
+	public void uploadFiles()  {
+
+
+		final List<Record> recordList = localRepository.getAllRecords();
+
+		int count=0,progress=0;
+		boolean proceedUpload = true;
+		for (Record record : recordList){
+			if (record.getSelected()==1){
+				count++;
+			}
+			if(record.getPatient_id().isEmpty() && record.getSelected() == 1){
+				proceedUpload=false;
+			}
+		}
+
+		if(count!=0 && proceedUpload) {
+			for (Record record : recordList) {
+				if (record.getSelected() == 1) {
+					progress++;
+					boolean isLast = false;
+					if (progress == count) {
+						isLast = true;
+					}
+					view.showProgressDialog();
+					try {
+						Context ctx = view.getContext();
+						UploadUtil.uploadFilegcp(record.getPath(), record.getPatient_id(), ctx, isLast,record.getDept());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					//UploadUtil.uploadFile(record.getPath(), record.getPatient_id());
+
+				}
+				//deleteRecordafteUpload(record.getId(), record.getPath());
+			}
+		}
+		else
+		{	if(count==0)
+				view.showMessage("No items selected");
+			else
+				view.showMessage("No patient ID for one of the selected records. Please specify Patient" +
+						"id for all records.");
+		}
+
+		//view.hideProgress();
+		//view.hidePanelProgress();
+	}
+
+	@Override
+	public void deleteFiles() {
+
+		final List<Record> recordList = localRepository.getAllRecords();
+
+		int count=0,progress=0;
+
+		for (Record record : recordList){
+			if (record.getSelected()==1){
+				count++;
+			}
+		}
+
+		if(count!=0 ) {
+			for (Record record : recordList) {
+				if (record.getSelected() == 1) {
+
+					view.showProgress();
+					deleteRecord(record.getId(), record.getPath());
+				}
+			}
+			view.hideProgress();
+		}
+		else
+		{	if(count==0)
+			view.showMessage("No items selected");
+
+		}
+	}
+
+	@Override
+	public void cleanAllSelection() {
+		for (Record record : localRepository.getAllRecords()) {
+			record.setSelected(0);
+			loadRecords();
+
+		}
+
+	}
+
+	public static void hideProgress(Boolean status){
+
+		view.hideProgressDialog();
+
+
+		if(!status){
+			view.showMessage("Failed");
+		}else{
+			view.showMessage("Files uploaded Successfully");
+		}
+
+
+	}
+
+	public static void showProgress(){
+
+		view.showProgressDialog();
+
+
+	}
+
+
+	public void deleteRecordafteUpload(final long id, final String path) {
+		final Record rec = activeRecord;
+		if (rec != null && rec.getId() == id) {
+			audioPlayer.stop();
+		}
+		recordingsTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				localRepository.deleteRecord((int) id);
+//				fileRepository.deleteRecordFile(path);
+				if (rec != null && rec.getId() == id) {
+					prefs.setActiveRecord(-1);
+					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
+				}
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override
+					public void run() {
+						if (view != null) {
+							view.onDeleteRecord(id);
+							view.showMessage(R.string.record_upload_and_moved_into_trash);
+							if (rec != null && rec.getId() == id) {
+								view.hidePlayPanel();
+								activeRecord = null;
+							}
+						}
+					}
+				});
+			}
+		});
+	}
+
 }

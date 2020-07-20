@@ -399,7 +399,49 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void renameRecord(final long id, final String n) {
+	public void updatePatientID(final String patientID,final long id) {
+		loadingTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				Record record = localRepository.getRecord((int) id);
+				record.setPatient_id(patientID);
+				if (localRepository.updateRecord(record)) {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.hideProgress();
+							}
+						}
+					});
+				}
+			}
+		});
+	}
+
+	@Override
+	public void updateDept(final String dept, final long id) {
+		loadingTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				Record record = localRepository.getRecord((int) id);
+				record.setDept(dept);
+				if (localRepository.updateRecord(record)) {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.hideProgress();
+							}
+						}
+					});
+				}
+			}
+		});
+	}
+
+	@Override
+	public void renameRecord(final long id, final String n , final String patient_id) {
 		if (id < 0 || n == null || n.isEmpty()) {
 			AndroidUtils.runOnUIThread(new Runnable() {
 				@Override public void run() {
@@ -447,7 +489,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						if (fileRepository.renameFile(record.getPath(), name, ext)) {
 							MainPresenter.this.record = new Record(record.getId(), nameWithExt, record.getDuration(), record.getCreated(),
 									record.getAdded(), record.getRemoved(), renamed.getAbsolutePath(), record.isBookmarked(),
-									record.isWaveformProcessed(), record.getAmps());
+									record.isWaveformProcessed(), record.getAmps(),record.getPatient_id(),record.getSelected(),record.getDept());
+							MainPresenter.this.record.setPatient_id(patient_id);
 							if (localRepository.updateRecord(MainPresenter.this.record)) {
 								AndroidUtils.runOnUIThread(new Runnable() {
 									@Override
@@ -498,6 +541,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 			}
 		});
+	}
+
+	@Override
+	public String getPatientId(long id) {
+		Record record = localRepository.getRecord((int)id);
+		return record.getPatient_id();
 	}
 
 	@Override
@@ -676,7 +725,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							rec.getDuration() / 1000,
 							new File(rec.getPath()).length(),
 							rec.getPath(),
-							rec.getCreated()
+							rec.getCreated(),
+							rec.getPatient_id(),
+							rec.getDept()
 					)
 			);
 		}
@@ -738,7 +789,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 											newFile.getAbsolutePath(),
 											false,
 											true,
-											new int[ARApplication.getLongWaveformSampleCount()]));
+											new int[ARApplication.getLongWaveformSampleCount()],"",
+											0,""));
 
 							final Record rec = record;
 							if (rec != null) {

@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "anathapuri-ascribe",
+  "private_key_id": "1b0680a216ca06a774ed683625b587e2171cd1fc",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCxFMKro4Cy2TJg\nrrL/cbE0nFdJKAvy1FZBv7mXlfsXiONR6dR8+3iYQrV/i3neIJo5dIlTp6QgDBG/\n/EwcdHnEUH7q4zyUiQZ+AWbsQdisqeU6s+REMAZrMk36QR0WWvcmVSi9ZyvrylLY\nWBqvM/VvsblZyH0hzc2LDMQdohQwq5Q/Oe1gYon8zhDRHSgg7Y3VW5jHB3lvdnnn\n6NccUyeasFTawlxcr/Mo3vpYTi8AD8m3OlCFxXjpbF2fZz/ytFeOPO7Ylr5T56DE\nYaH0gZ5yHvmZi56zt11Jr17jICOmIdTpYU72xIGZ+yqz2FAAkbdgJ5zWlWz4R4GY\nhJjijZbzAgMBAAECggEACkSfaHohyifGVY0xFkHT74PfRdUwzYMFgL4qzKuRiehR\n8hvXypV/BSkybV5mPHycehdpUnSmk4XPo60asWMJn9oLufgKORIG/S3R94IhRnB6\n48qu7PXx8VZTPN8jXiVRLnkCqeo+cDzk9+QyoT/R4V5SAURFs+eYnbxURORIkm0l\nGfxiGRJx7ysscDsWNfC10u8Q+1iabhtAkRcl6UHWOaKS1v5EgcnFl6IawhNid5fx\n1B6OpH5gcE2AcWVu8zpag7/+HwukqkArs9xhiE7NJypnKdyhuqFYLW31lKCpTb33\nmheocnmaEjuViqTRQGbcwSLS4OCy8GiyAsr0yQXutQKBgQDpLt6+DkMUNphXrV03\n1JqDMdSDwTOAC8kGawMU+gIY1z9iP0O6bgQJPfcywdNq7qTjqyQ10HNQx+zztdZy\nALFu69ZGpGTaLXqjuAC/M8Tg1AbaTiyJWqTXeOvrI5OmW0wHWpoF8eF1lix/+ud6\nVl158emRqEcIaU1wMlcjlDBKRwKBgQDCaI+iau7VPvSHVy59RRDCMzEhJKoZYpOA\n9dlUTRDWTUX1f+a5MS0YVrumvwkBU8GMDcoWU3uGEjWzCIGF2nr4qQ73lI36Es+d\nWoRLIlmMNQuU0W5nJUkrR8Ff1fzWUoH/5e6Of2NAZDVB2kvRmNDr6EUGuJ/wl8JL\ndS4Ja/T39QKBgFwL4mVHn/cErhI+HwQA6pVLQEZaJ4guHsZny6mmHtnLbfvMWWHo\nN7OmQERK+rfFSFWOoxaTGFIU+VYiu2n5GBFfCxCLqDvvo++onLLdLqRJTgMyxKXb\noCJmW0pQmuIaO+LTQuWB26vdAefrFSDXosKWWcrjkFajqqvVU0x6HK3VAoGBAIao\nCiVD0B4gtxsvheH6/rqk3rjIPpHKt8SxhVFg9/KYH4cGindn2oZrPRsoY0JqEzvB\nKWMBfCPHZS6XC6/9PwQRhW5zlUvLz8Z8Nfoc1s3IyDbSQZhsORwjXYvWGoURLT5k\nszI8hjDJuCHe5HlPUha1EWqwYwgw9cFyburTviApAoGAYhbyt9uoTcrd5P0T2d1+\nSzkBx+5JmzZXhJHol9Y4W0/UVcLZ3YtGfU8n//YvfyUueRBl17kND2LGyZKwjb33\nEMWGhI3gznO5/+XvfXW+a8hh5rVfZ+jPZL73trcd4B55Lu84cR1WBLb3xcTuFH9N\nFhg0a60lW0OzsucLYTnD8lA=\n-----END PRIVATE KEY-----\n",
+  "client_email": "ascribe-ananth@anathapuri-ascribe.iam.gserviceaccount.com",
+  "client_id": "103424367283476617650",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ascribe-ananth%40anathapuri-ascribe.iam.gserviceaccount.com"
+}

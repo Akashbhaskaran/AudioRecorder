@@ -72,6 +72,9 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 	static final String COLUMN_DATA_STR = "data_str";
 	static final String COLUMN_WAVEFORM_PROCESSED = "waveform_processed";
 	static final String COLUMN_BOOKMARK = "bookmark";
+	static final String COLUMN_PATIENT_ID = "patient_id";
+	static final String COLUMN_SELECTED = "selected";
+	static final String COLUMN_DEPT = "dept";
 
 	//Create records table sql statement
 	private static final String CREATE_RECORDS_TABLE_SCRIPT =
@@ -80,6 +83,9 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 					+ COLUMN_NAME + " TEXT NOT NULL, "
 					+ COLUMN_DURATION + " LONG NOT NULL, "
 					+ COLUMN_CREATION_DATE + " LONG NOT NULL, "
+					+ COLUMN_PATIENT_ID + " TEXT , "
+					+ COLUMN_SELECTED + " INTEGER , "
+					+ COLUMN_DEPT + " TEXT , "
 					+ COLUMN_DATE_ADDED + " LONG NOT NULL, "
 					+ COLUMN_PATH + " TEXT NOT NULL, "
 					+ COLUMN_DATA + " BLOB NOT NULL, "
@@ -98,6 +104,9 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 					+ COLUMN_DATE_REMOVED + " LONG NOT NULL, "
 					+ COLUMN_PATH + " TEXT NOT NULL, "
 					+ COLUMN_DATA + " BLOB NOT NULL, "
+					+ COLUMN_PATIENT_ID + " TEXT , "
+					+ COLUMN_DEPT + " TEXT , "
+					+ COLUMN_SELECTED + " INTEGER , "
 					+ COLUMN_BOOKMARK + " INTEGER NOT NULL DEFAULT 0, "
 					+ COLUMN_WAVEFORM_PROCESSED + " INTEGER NOT NULL DEFAULT 0, "
 					+ COLUMN_DATA_STR + " BLOB NOT NULL);";

@@ -41,6 +41,8 @@ public interface LocalRepository {
 
 	boolean updateRecord(Record record);
 
+	void updateSelectionsToZero();
+
 	long insertFile(String filePath) throws IOException;
 
 	long insertFile(String filePath, long duration, int[] waveform) throws IOException;
@@ -54,6 +56,10 @@ public interface LocalRepository {
 	boolean addToBookmarks(int id);
 
 	boolean removeFromBookmarks(int id);
+
+	boolean addToSelection(int id);
+
+	boolean removeFromSelection(int id);
 
 	List<Record> getBookmarks();
 

@@ -36,10 +36,23 @@ public class Record {
 	private boolean waveformProcessed;
 	private int[] amps;
 	private byte[] data;
+	private String patient_id;
+	private Integer selected = 0;
+	private String dept;
+
+	public String getDept() {
+		return dept;
+	}
+
+	public void setDept(String dept) {
+		this.dept = dept;
+	}
+
+
 	//TODO: Remove not needed data clusters.
 
 	public Record(int id, String name, long duration, long created, long added, long removed, String path,
-					  boolean bookmark, boolean waveformProcessed, int[] amps) {
+					  boolean bookmark, boolean waveformProcessed, int[] amps,String patient_id,Integer selected,String dept) {
 		this.id = id;
 		this.name = name;
 		this.duration = duration;
@@ -51,11 +64,15 @@ public class Record {
 		this.waveformProcessed = waveformProcessed;
 		this.amps = amps;
 		this.data = int2byte(amps);
+		this.patient_id = patient_id;
+		this.selected = selected;
+		this.dept = dept;
 //		this.data = AndroidUtils.int2byte(amps);
 	}
 
+
 	public Record(int id, String name, long duration, long created, long added, long removed, String path,
-					  boolean bookmark, boolean waveformProcessed, byte[] amps) {
+					  boolean bookmark, boolean waveformProcessed, byte[] amps,String patient_id,Integer selected,String dept) {
 		this.id = id;
 		this.name = name;
 		this.duration = duration;
@@ -68,6 +85,9 @@ public class Record {
 		this.amps = byte2int(amps);
 //		this.amps = AndroidUtils.byte2int(amps);
 		this.data = amps;
+		this.patient_id=patient_id;
+		this.selected = selected;
+		this.dept =dept;
 	}
 
 	public byte[] int2byte(int[] amps) {
@@ -189,5 +209,21 @@ public class Record {
 				", amps=" + Arrays.toString(amps) +
 				", data=" + Arrays.toString(data) +
 				'}';
+	}
+
+	public String getPatient_id() {
+		return patient_id;
+	}
+
+	public void setPatient_id(String patient_id) {
+		this.patient_id = patient_id;
+	}
+
+	public Integer getSelected() {
+		return selected;
+	}
+
+	public void setSelected(Integer selected) {
+		this.selected = selected;
 	}
 }

@@ -19,19 +19,27 @@
 
 	<application
 			android:allowBackup="false"
-			android:hardwareAccelerated="@bool/useHardwareAcceleration"
+		android:hardwareAccelerated="true"
 			android:name="com.dimowner.audiorecorder.ARApplication"
 			android:icon="@mipmap/audio_recorder_logo"
-			android:roundIcon="@mipmap/audio_recorder_logo"
+			android:roundIcon="@mipmap/ic_launcher"
 			android:label="@string/app_name"
-			android:theme="@style/AppTheme">
+			android:theme="@style/AppTheme"
+			android:usesCleartextTraffic="true"
+				>
 
 		<activity android:name="com.dimowner.audiorecorder.app.main.MainActivity"
-					 android:launchMode= "singleTask"
+
+			android:screenOrientation="portrait">
+		</activity>
+		<activity android:name="com.dimowner.audiorecorder.app.main.LoginActivity"
+			android:noHistory="true"
+			android:screenOrientation="portrait"/>
+		<activity android:name="com.dimowner.audiorecorder.app.main.SplashActivity"
+
 					 android:screenOrientation="portrait">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
-
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>

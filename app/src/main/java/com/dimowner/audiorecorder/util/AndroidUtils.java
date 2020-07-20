@@ -495,7 +495,7 @@ public class AndroidUtils {
 				public void onClick(View v) {
 					ArrayList<RecordItem> list = new ArrayList<>();
 					for (Record r : lostRecords) {
-						list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath(), r.getCreated()));
+						list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath(), r.getCreated(),r.getPatient_id(),r.getSelected(),r.getDept()));
 					}
 					activity.startActivity(LostRecordsActivity.getStartIntent(activity.getApplicationContext(), list));
 					dialog.dismiss();

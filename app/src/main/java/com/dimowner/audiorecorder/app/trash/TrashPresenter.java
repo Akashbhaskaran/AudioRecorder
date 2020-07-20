@@ -43,7 +43,7 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 				List<Record> records = localRepository.getTrashRecords();
 				final ArrayList<RecordItem> list = new ArrayList<>();
 				for (Record r : records) {
-					list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath(), r.getCreated()));
+					list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath(), r.getCreated(),r.getPatient_id(),r.getSelected(),r.getDept()));
 				}
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override
@@ -71,7 +71,7 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 	}
 
 	@Override
-	public void onRecordInfo(String name, long duration, String location, long created) {
+	public void onRecordInfo(String name, long duration, String location, long created,String patient_id,String dept) {
 		String format;
 		if (location.contains(AppConstants.M4A_EXTENSION)) {
 			format = AppConstants.M4A_EXTENSION;
@@ -80,7 +80,7 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 		} else {
 			format = "";
 		}
-		view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created));
+		view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created,patient_id,dept));
 	}
 
 	@Override
@@ -102,6 +102,7 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 			}
 		});
 	}
+
 
 	@Override
 	public void deleteAllRecordsFromTrash() {

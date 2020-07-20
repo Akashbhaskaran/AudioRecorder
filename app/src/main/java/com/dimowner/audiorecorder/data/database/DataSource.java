@@ -127,6 +127,11 @@ public abstract class DataSource<T> {
 		}
 	}
 
+	void updateSelectionsToZero(){
+		Log.e("Update Selections","Entered");
+		db.execSQL("UPDATE " + tableName + " SET "+SQLiteHelper.COLUMN_SELECTED + " = 0");
+	}
+
 	/**
 	 * Get all records from database for table T.
 	 * @return List that contains all records of table T.

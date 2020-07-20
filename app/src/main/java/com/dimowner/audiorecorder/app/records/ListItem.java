@@ -43,10 +43,22 @@ public class ListItem implements Parcelable {
 	private boolean bookmarked;
 	private final String avatar_url;
 	private int[] amps;
+	private String patient_id;
+	private Integer isSelected;
+
+	public String getDept() {
+		return dept;
+	}
+
+	public void setDept(String dept) {
+		this.dept = dept;
+	}
+
+	private String dept;
 
 
 	public ListItem(long id, int type, String name, String description, long duration,
-						 long created, long added, String path, boolean bookmarked, int[] amps) {
+						 long created, long added, String path, boolean bookmarked, int[] amps,String patient_id,Integer isSelected,String dept) {
 		this.id = id;
 		this.type = type;
 		this.name = name;
@@ -61,18 +73,21 @@ public class ListItem implements Parcelable {
 		this.bookmarked = bookmarked;
 		this.avatar_url = "";
 		this.amps = amps;
+		this.patient_id = patient_id;
+		this.isSelected = isSelected;
+		this.dept = dept;
 	}
 
 	public static ListItem createHeaderItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", 0, 0, 0, "", false, null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", 0, 0, 0, "", false, null,"",0,"");
 	}
 
 	public static ListItem createFooterItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", 0, 0, 0, "", false, null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", 0, 0, 0, "", false, null,"",0,"");
 	}
 
 	public static ListItem createDateItem(long date) {
-		return new ListItem(-1, ListItem.ITEM_TYPE_DATE, "DATE", "", 0, 0, date, "", false, null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_DATE, "DATE", "", 0, 0, date, "", false, null,"",0,"");
 	}
 
 	public long getId() {
@@ -155,16 +170,18 @@ public class ListItem implements Parcelable {
 		createTime = convertTimeToStr(created);
 		durationStr = convertDurationToStr(duration);
 		addedTime = convertTimeToStr(added);
-		String[] data = new String[4];
+		String[] data = new String[5];
 		in.readStringArray(data);
 		name = data[0];
 		description = data[1];
 		path = data[2];
 		avatar_url = data[3];
+		patient_id = data[4];
 		in.readIntArray(amps);
 		boolean[] bools = new boolean[1];
 		in.readBooleanArray(bools);
 		bookmarked = bools[0];
+
 	}
 
 	public int describeContents() {
@@ -174,7 +191,7 @@ public class ListItem implements Parcelable {
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeInt(type);
 		out.writeLongArray(new long[] {id, created, duration, added});
-		out.writeStringArray(new String[] {name, description, path, avatar_url});
+		out.writeStringArray(new String[] {name, description, path, avatar_url,patient_id});
 		out.writeIntArray(amps);
 		out.writeBooleanArray(new boolean[] {bookmarked});
 	}
@@ -210,5 +227,21 @@ public class ListItem implements Parcelable {
 				", avatar_url='" + avatar_url + '\'' +
 				", amps length='" + amps.length+ '\'' +
 				'}';
+	}
+
+	public String getPatient_id() {
+		return patient_id;
+	}
+
+	public void setPatient_id(String patient_id) {
+		this.patient_id = patient_id;
+	}
+
+	public Integer isSelected() {
+		return isSelected;
+	}
+
+	public void setSelected(Integer selected) {
+		isSelected = selected;
 	}
 }

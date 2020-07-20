@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.data.database;
 
 import android.database.Cursor;
 import android.database.SQLException;
+import android.util.Log;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.audio.SoundFile;
@@ -116,6 +117,14 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
+	public void updateSelectionsToZero() {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		dataSource.updateSelectionsToZero();
+	}
+
+	@Override
 	public long insertFile(String path) throws IOException, OutOfMemoryError, IllegalStateException {
 		if (path != null && !path.isEmpty()) {
 			final SoundFile soundFile = SoundFile.create(path);
@@ -131,7 +140,10 @@ public class LocalRepositoryImpl implements LocalRepository {
 						path,
 						false,
 						true,
-						soundFile.getFrameGains());
+						soundFile.getFrameGains(),
+						"",
+						0,
+						"");
 				Record r = insertRecord(record);
 				if (r != null) {
 					return r.getId();
@@ -162,7 +174,10 @@ public class LocalRepositoryImpl implements LocalRepository {
 					path,
 					false,
 					false,
-					waveform);
+					waveform,
+					"",
+					0,
+					"");
 			Record r = insertRecord(record);
 			if (r != null) {
 				return r.getId();
@@ -194,7 +209,10 @@ public class LocalRepositoryImpl implements LocalRepository {
 							record.getPath(),
 							record.isBookmarked(),
 							true,
-							soundFile.getFrameGains());
+							soundFile.getFrameGains(),
+							record.getPatient_id(),
+							record.getSelected(),record.getDept()
+					);
 					boolean b = updateRecord(rec);
 					if (b) {
 						return true;
@@ -326,6 +344,36 @@ public class LocalRepositoryImpl implements LocalRepository {
 		Record r = dataSource.getItem(id);
 		if (r != null) {
 			r.setBookmark(false);
+			return (dataSource.updateItem(r) > 0);
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean addToSelection(int id) {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		Record r = dataSource.getItem(id);
+		Log.e("addtoselection","entered");
+		if (r != null) {
+			r.setSelected(1);
+			Log.e("addtoselection","entered");
+			return (dataSource.updateItem(r) > 0);
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean removeFromSelection(int id) {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		Record r = dataSource.getItem(id);
+		if (r != null) {
+			r.setSelected(0);
 			return (dataSource.updateItem(r) > 0);
 		} else {
 			return false;

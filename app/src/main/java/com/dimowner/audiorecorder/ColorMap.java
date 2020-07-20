@@ -41,6 +41,7 @@ public class ColorMap {
 		if (prefs.isFirstRun()) {
 			selected = THEME_TEAL;
 			prefs.setAppThemeColor(2);
+			prefs.setStoreDirPublic(false);
 		} else {
 			selected = prefs.getThemeColor();
 		}

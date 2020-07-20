@@ -46,7 +46,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 					public void run() {
 						ArrayList<RecordItem> list = new ArrayList<>();
 						for (Record r : lostRecords) {
-							list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath(), r.getCreated()));
+							list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath(), r.getCreated(),r.getPatient_id(),r.getSelected(),r.getDept()));
 						}
 						if (view != null) {
 							if (list.isEmpty()) {
@@ -104,7 +104,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 	}
 
 	@Override
-	public void onRecordInfo(String name, long duration, String location, long created) {
+	public void onRecordInfo(String name, long duration, String location, long created,String patient_id,String dept) {
 		String format;
 		if (location.contains(AppConstants.M4A_EXTENSION)) {
 			format = AppConstants.M4A_EXTENSION;
@@ -113,7 +113,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 		} else {
 			format = "";
 		}
-		view.showRecordInfo(new RecordInfo(FileUtil.removeFileExtension(name), format, duration/1000, new File(location).length(), location, created));
+		view.showRecordInfo(new RecordInfo(FileUtil.removeFileExtension(name), format, duration/1000, new File(location).length(), location, created,patient_id,dept));
 	}
 
 	@Override

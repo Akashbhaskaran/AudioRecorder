@@ -207,21 +207,20 @@
 					tools:text="00:00"/>
 
 			<TextView
-					android:id="@+id/txt_name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="bottom|center_horizontal"
-					android:layout_marginStart="@dimen/spacing_huge"
-					android:layout_marginEnd="@dimen/spacing_huge"
-					android:layout_marginBottom="@dimen/spacing_normal"
-					android:drawableEnd="@drawable/ic_pencil_small"
-					android:ellipsize="end"
-					android:maxLines="2"
-					android:textColor="@color/text_primary_light"
-					android:textSize="@dimen/text_large"
-					android:visibility="invisible"
-					tools:text="Rec-2019.12.30 12:12:23"
-					tools:visibility="visible" />
+				android:id="@+id/txt_name"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="bottom|center_horizontal"
+				android:layout_marginStart="@dimen/spacing_huge"
+				android:layout_marginEnd="@dimen/spacing_huge"
+				android:layout_marginBottom="@dimen/spacing_normal"
+				android:ellipsize="end"
+				android:maxLines="2"
+				android:textColor="@color/text_primary_light"
+				android:textSize="@dimen/text_large"
+				android:visibility="invisible"
+				tools:text="Rec-2019.12.30 12:12:23"
+				tools:visibility="gone" />
 		</LinearLayout>
 
 		<TextView

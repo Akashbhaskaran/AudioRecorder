@@ -61,7 +61,8 @@ public class ActivityInformation extends Activity {
 		TextView txtSize = findViewById(R.id.txt_size);
 		TextView txtLocation = findViewById(R.id.txt_location);
 		TextView txtCreated = findViewById(R.id.txt_created);
-
+		TextView txtPatientID = findViewById(R.id.txt_patient_id);
+		TextView txtDept = findViewById(R.id.txt_dept);
 		if (extras != null) {
 			if (extras.containsKey(KEY_INFO)) {
 				RecordInfo info = extras.getParcelable(KEY_INFO);
@@ -72,6 +73,9 @@ public class ActivityInformation extends Activity {
 					txtSize.setText(AndroidUtils.formatSize(info.getSize()));
 					txtLocation.setText(info.getLocation());
 					txtCreated.setText(TimeUtils.formatDateTime(info.getCreated()));
+					txtPatientID.setText(info.getPatient_id());
+					txtDept.setText(info.getDept());
+
 				}
 			}
 		}

@@ -13,13 +13,28 @@ public class RecordItem implements Parcelable {
 	private long duration;
 	private String path;
 	private long created;
+	private String patient_id;
+	private Integer selected;
 
-	public RecordItem(int id, String name, long duration, String path, long created) {
+	public String getDept() {
+		return dept;
+	}
+
+	public void setDept(String dept) {
+		this.dept = dept;
+	}
+
+	private String dept;
+
+	public RecordItem(int id, String name, long duration, String path, long created,String patient_id,Integer selected,String dept) {
 		this.id = id;
 		this.name = name;
 		this.duration = duration;
 		this.path = path;
 		this.created = created;
+		this.patient_id=patient_id;
+		this.selected = selected;
+		this.dept = dept;
 	}
 
 	public int getId() {
@@ -75,5 +90,21 @@ public class RecordItem implements Parcelable {
 			return new RecordItem[size];
 		}
 	};
+
+	public String getPatient_id() {
+		return patient_id;
+	}
+
+	public void setPatient_id(String patient_id) {
+		this.patient_id = patient_id;
+	}
+
+	public Integer getSelected() {
+		return selected;
+	}
+
+	public void setSelected(Integer selected) {
+		this.selected = selected;
+	}
 	//----- END Parcelable implementation ----------
 }

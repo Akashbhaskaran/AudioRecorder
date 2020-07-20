@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -40,6 +41,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -47,6 +50,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +72,7 @@ import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
@@ -290,7 +295,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				break;
 			case R.id.txt_name:
 				if (presenter.getActiveRecordId() != -1) {
-					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()), false);
+					//setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()), false);
 				}
 				break;
 		}
@@ -350,11 +355,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void showMessage(String text) {
+		Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
 	public void showRecordingStart() {
 		txtName.setClickable(false);
 		txtName.setFocusable(false);
 		txtName.setCompoundDrawables(null, null, null, null);
-		txtName.setVisibility(View.VISIBLE);
+		txtName.setVisibility(View.GONE);
 		txtName.setText(R.string.recording_progress);
 		txtZeroTime.setVisibility(View.INVISIBLE);
 		txtDuration.setVisibility(View.INVISIBLE);
@@ -379,7 +389,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtName.setText("");
 		txtZeroTime.setVisibility(View.VISIBLE);
 		txtDuration.setVisibility(View.VISIBLE);
-		txtName.setCompoundDrawablesWithIntrinsicBounds(null, null, getDrawable(R.drawable.ic_pencil_small), null);
+		//txtName.setCompoundDrawablesWithIntrinsicBounds(null, null, getDrawable(R.drawable.ic_pencil_small), null);
 		txtName.setVisibility(View.INVISIBLE);
 		btnRecord.setImageResource(R.drawable.ic_record);
 		btnPlay.setEnabled(true);
@@ -522,7 +532,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		if (name == null || name.isEmpty()) {
 			txtName.setVisibility(View.INVISIBLE);
 		} else if (txtName.getVisibility() == View.INVISIBLE) {
-			txtName.setVisibility(View.VISIBLE);
+			txtName.setVisibility(View.GONE);
 		}
 		txtName.setText(name);
 	}
@@ -643,44 +653,89 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				LinearLayout.LayoutParams.WRAP_CONTENT);
 		container.setLayoutParams(containerLp);
 
+		final Spinner deptSpinner = new Spinner(getApplicationContext());
 		final EditText editText = new EditText(getApplicationContext());
+		final EditText patient_id = new EditText(getApplicationContext());
 		ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT);
 		editText.setLayoutParams(lp);
+		patient_id.setLayoutParams(lp);
+		deptSpinner.setLayoutParams(lp);
 		editText.addTextChangedListener(new TextWatcher() {
-			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-			@Override public void afterTextChanged(Editable s) {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
 				if (s.length() > AppConstants.MAX_RECORD_NAME_LENGTH) {
 					s.delete(s.length() - 1, s.length());
 				}
 			}
-			@Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			}
 		});
 		editText.setTextColor(getResources().getColor(R.color.text_primary_light));
 		editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_medium));
+		patient_id.setTextColor(getResources().getColor(R.color.text_primary_light));
+		patient_id.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_medium));
 
+		List<String> categories = new ArrayList<String>();
+		categories.add("Discharge Summary");
+		categories.add("Procedure note");
+		categories.add("Medical Certificate");
+		categories.add("Others");
+
+
+		// Creating adapter for spinner
+		final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+		dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+		// attaching data adapter to spinner
+		deptSpinner.setAdapter(dataAdapter);
 		int pad = (int) getResources().getDimension(R.dimen.spacing_normal);
 		ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(editText.getLayoutParams());
 		params.setMargins(pad, pad, pad, pad);
 		editText.setLayoutParams(params);
+		patient_id.setLayoutParams(params);
+		deptSpinner.setLayoutParams(params);
+		patient_id.setHint(R.string.patient_id_hint);
+		patient_id.setHintTextColor(getResources().getColor(R.color.white));
 		container.addView(editText);
-		if (showCheckbox) {
+		container.addView(patient_id);
+		container.addView(deptSpinner);
+		/*if (showCheckbox) {
 			container.addView(createCheckerView());
-		}
+		}*/
 
 		final String fileName = FileUtil.removeFileExtension(file.getName());
 		editText.setText(fileName);
+		patient_id.setText(presenter.getPatientId(recordId));
 
-		AlertDialog alertDialog = new AlertDialog.Builder(this)
-				.setTitle(R.string.record_name)
+		final AlertDialog alertDialog = new AlertDialog.Builder(this)
+				.setTitle("Details")
 				.setView(container)
 				.setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
+					@Override
+					public void onClick(DialogInterface dialog, int i) {
 						String newName = editText.getText().toString();
+						String patientID = patient_id.getText().toString();
+						String dept = dataAdapter.getItem(deptSpinner.getSelectedItemPosition()).toString();
+						presenter.updateDept(dept,recordId);
 						if (!fileName.equalsIgnoreCase(newName)) {
-							presenter.renameRecord(recordId, newName);
-						}
+							presenter.renameRecord(recordId, newName, patientID);
+
+							if(patientID.isEmpty()){
+								showMessage("Record saved without Patient ID");
+							}
+
+						}else{
+						 	presenter.updatePatientID(patientID,recordId);
+						 }
+
 						dialog.dismiss();
 					}
 				})

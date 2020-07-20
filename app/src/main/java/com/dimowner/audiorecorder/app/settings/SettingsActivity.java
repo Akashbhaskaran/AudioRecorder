@@ -41,6 +41,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.main.LoginActivity;
 import com.dimowner.audiorecorder.app.trash.TrashActivity;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
@@ -53,7 +54,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
 	private TextView txtAvailableSpace;
-
+	private TextView txtSignOut;
 	private Switch swPublicDir;
 	private Switch swRecordInStereo;
 	private Switch swKeepScreenOn;
@@ -124,7 +125,14 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		txtRecordsCount = findViewById(R.id.txt_records_count);
 		txtTotalDuration= findViewById(R.id.txt_total_duration);
 		txtAvailableSpace = findViewById(R.id.txt_available_space);
-
+		txtSignOut = (TextView) findViewById(R.id.btnSignout);
+		txtSignOut.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+				startActivity(i);
+			}
+		});
 		swPublicDir.setOnCheckedChangeListener(publicDirListener);
 		swRecordInStereo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
@@ -521,4 +529,10 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	public void showMessage(int resId) {
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
+
+	@Override
+	public void showMessage(String text) {
+		Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+	}
+
 }

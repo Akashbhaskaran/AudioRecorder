@@ -73,7 +73,8 @@ public interface MainContract {
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
-
+		void updatePatientID(final String patientID,final long id);
+		void updateDept(final String dept,final long id);
 		void executeFirstRun();
 
 		void setAudioRecorder(RecorderContract.Recorder recorder);
@@ -86,8 +87,8 @@ public interface MainContract {
 		void seekPlayback(int px);
 		void stopPlayback();
 
-		void renameRecord(long id, String name);
-
+		void renameRecord(long id, String name,String patient_id);
+		String getPatientId(long id);
 		void loadActiveRecord();
 
 		void dontAskRename();

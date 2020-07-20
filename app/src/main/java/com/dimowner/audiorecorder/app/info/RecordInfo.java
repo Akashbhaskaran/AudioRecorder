@@ -15,14 +15,27 @@ public class RecordInfo implements Parcelable {
 	private long duration;
 	private long created;
 	private long size;
+	private String patient_id;
 
-	public RecordInfo(String name, String format, long duration, long size, String location, long created) {
+	public String getDept() {
+		return dept;
+	}
+
+	public void setDept(String dept) {
+		this.dept = dept;
+	}
+
+	private String dept;
+
+	public RecordInfo(String name, String format, long duration, long size, String location, long created,String patient_id,String dept) {
 		this.name = name;
 		this.format = format;
 		this.duration = duration;
 		this.size = size;
 		this.location = location;
 		this.created = created;
+		this.patient_id = patient_id;
+		this.dept = dept;
 	}
 
 	public String getName() {
@@ -51,11 +64,13 @@ public class RecordInfo implements Parcelable {
 
 	//----- START Parcelable implementation ----------
 	private RecordInfo(Parcel in) {
-		String[] data = new String[3];
+		String[] data = new String[5];
 		in.readStringArray(data);
 		name = data[0];
 		format = data[1];
 		location = data[2];
+		patient_id = data[3];
+		dept = data[4];
 		long[] longs = new long[3];
 		in.readLongArray(longs);
 		duration = longs[0];
@@ -68,7 +83,7 @@ public class RecordInfo implements Parcelable {
 	}
 
 	public void writeToParcel(Parcel out, int flags) {
-		out.writeStringArray(new String[] {name, format, location});
+		out.writeStringArray(new String[] {name, format, location,patient_id,dept});
 		out.writeLongArray(new long[] {duration, size, created});
 	}
 
@@ -82,5 +97,13 @@ public class RecordInfo implements Parcelable {
 			return new RecordInfo[size];
 		}
 	};
+
+	public String getPatient_id() {
+		return patient_id;
+	}
+
+	public void setPatient_id(String patient_id) {
+		this.patient_id = patient_id;
+	}
 	//----- END Parcelable implementation ----------
 }

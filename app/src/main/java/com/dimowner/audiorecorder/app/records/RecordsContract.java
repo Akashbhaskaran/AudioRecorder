@@ -16,10 +16,14 @@
 
 package com.dimowner.audiorecorder.app.records;
 
+import android.content.Context;
+import android.os.Handler;
+
 import com.dimowner.audiorecorder.Contract;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.data.database.Record;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface RecordsContract {
@@ -29,12 +33,15 @@ public interface RecordsContract {
 		void showPlayStart();
 		void showPlayPause();
 		void showPlayStop();
+		Context getContext();
 		void onPlayProgress(long mills, int px, int percent);
-
 		void showNextRecord();
 		void showPrevRecord();
 
 		void showPlayerPanel();
+
+		void showProgressDialog();
+		void hideProgressDialog();
 
 		void startPlaybackService();
 		void stopPlaybackService();
@@ -57,6 +64,9 @@ public interface RecordsContract {
 
 		void hidePlayPanel();
 
+		void addedToSelection(int id, boolean isActive);
+		void removedFromSelection(int id, boolean isActive);
+
 		void addedToBookmarks(int id, boolean isActive);
 		void removedFromBookmarks(int id, boolean isActive);
 
@@ -76,6 +86,7 @@ public interface RecordsContract {
 
 		void startPlayback();
 
+		void updatePatientID(String patientID, long recordId);
 		void pausePlayback();
 
 		void seekPlayback(int px);
@@ -90,7 +101,7 @@ public interface RecordsContract {
 
 		void deleteRecord(long id, String path);
 
-		void renameRecord(long id, String name);
+		void renameRecord(long id, String name, String patientId);
 
 		void copyToDownloads(String path, String name);
 
@@ -106,19 +117,27 @@ public interface RecordsContract {
 		void addToBookmark(int id);
 		void removeFromBookmarks(int id);
 
+		void addToSelection(int id);
+		void removeFromSelection(int id);
+
 		void setActiveRecord(long id, Callback callback);
 
 		long getActiveRecordId();
 
 		String getActiveRecordPath();
 
+		String getActiveRecordPatientId();
 		String getRecordName();
 
-		void onRecordInfo(String name, long duration, String location, long created);
+		void onRecordInfo(String name, long duration, String location, long created,String patient_id,String dept);
 
 		void disablePlaybackProgressListener();
 
 		void enablePlaybackProgressListener();
+
+		void uploadFiles() ;
+		void deleteFiles();
+		void cleanAllSelection();
 	}
 
 	interface Callback {

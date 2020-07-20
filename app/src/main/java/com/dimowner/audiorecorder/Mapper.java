@@ -21,7 +21,10 @@ public class Mapper {
 				record.getAdded(),
 				record.getPath(),
 				record.isBookmarked(),
-				record.getAmps());
+				record.getAmps(),
+				record.getPatient_id(),
+				record.getSelected(),
+				record.getDept());
 	}
 
 	public static List<ListItem> recordsToListItems(List<Record> records) {

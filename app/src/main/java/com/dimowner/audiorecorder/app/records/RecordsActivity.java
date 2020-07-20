@@ -20,6 +20,7 @@ import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,18 +29,21 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -67,6 +71,7 @@ import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,6 +93,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ImageButton btnNext;
 	private ImageButton btnPrev;
 	private ImageButton btnDelete;
+	private ImageButton btnUploadFiles;
+	private ImageButton btnDeleteFiles;
 	private ImageButton btnBookmarks;
 	private ImageButton btnSort;
 	private ImageButton btnCheckBookmark;
@@ -101,12 +108,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private WaveformView waveformView;
 	private ProgressBar panelProgress;
 	private SeekBar playProgress;
-
 	private RecordsContract.UserActionsListener presenter;
 	private ServiceConnection serviceConnection;
 	private PlaybackService playbackService;
 	private ColorMap colorMap;
 	private boolean isBound = false;
+	private static ProgressDialog progressDialog;
 
 	public static Intent getStartIntent(Context context) {
 		Intent intent = new Intent(context, RecordsActivity.class);
@@ -139,6 +146,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnNext = findViewById(R.id.btn_next);
 		btnPrev = findViewById(R.id.btn_prev);
 		btnDelete = findViewById(R.id.btn_delete);
+		btnUploadFiles = findViewById(R.id.btn_upload_all);
+		btnDeleteFiles = findViewById(R.id.btn_delete_all);
 		btnBookmarks = findViewById(R.id.btn_bookmarks);
 		btnSort = findViewById(R.id.btn_sort);
 		btnCheckBookmark = findViewById(R.id.btn_check_bookmark);
@@ -153,7 +162,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnBookmarks.setOnClickListener(this);
 		btnCheckBookmark.setOnClickListener(this);
 		btnSort.setOnClickListener(this);
+		btnUploadFiles.setOnClickListener(this);
+		btnDeleteFiles.setOnClickListener(this);
 
+		progressDialog = new ProgressDialog(RecordsActivity.this);
+		progressDialog.setCancelable(false);
+		progressDialog.setTitle("Uploading");
 		playProgress = findViewById(R.id.play_progress);
 		txtProgress = findViewById(R.id.txt_progress);
 		txtDuration = findViewById(R.id.txt_duration);
@@ -253,6 +267,15 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				presenter.removeFromBookmarks(id);
 			}
 		});
+		adapter.setOnAddToSelectionListener(new RecordsAdapter.OnAddToSelectionListener() {
+			@Override public void onAddToSelection(int id) {
+				Log.e("onchecked changed",String.valueOf(id));
+				presenter.addToSelection(id);
+			}
+			@Override public void onRemoveFromSelection(int id) {
+				presenter.removeFromSelection(id);
+			}
+		});
 		adapter.setOnItemOptionListener(new RecordsAdapter.OnItemOptionListener() {
 			@Override
 			public void onItemOptionSelected(int menuId, final ListItem item) {
@@ -261,7 +284,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						AndroidUtils.shareAudioFile(getApplicationContext(), item.getPath(), item.getName());
 						break;
 					case R.id.menu_info:
-						presenter.onRecordInfo(item.getName(), item.getDuration(), item.getPath(), item.getCreated());
+						presenter.onRecordInfo(item.getName(), item.getDuration(), item.getPath(), item.getCreated(),item.getPatient_id(),item.getDept());
 						break;
 					case R.id.menu_rename:
 						setRecordName(item.getId(), new File(item.getPath()));
@@ -321,6 +344,22 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 		});
+	}
+
+	@Override
+	public  void showProgressDialog(){
+		if(!progressDialog.isShowing()) {
+			progressDialog.show();
+		}
+	}
+
+
+	@Override
+	public  void hideProgressDialog(){
+		if(progressDialog.isShowing()) {
+			progressDialog.hide();
+		}
+		presenter.cleanAllSelection();
 	}
 
 	@Override
@@ -504,6 +543,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
 				}
 				break;
+			case R.id.btn_upload_all:
+                    presenter.uploadFiles();
+                	break;
+			case  R.id.btn_delete_all:
+					presenter.deleteFiles();
+					break;
 		}
 	}
 
@@ -605,6 +650,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
+	public Context getContext() {
+		return getApplicationContext();
+	}
+
+	@Override
 	public void showNextRecord() {
 
 	}
@@ -700,6 +750,17 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
+	public void addedToSelection(int id, boolean isActive) {
+		adapter.addedToSelection(id);
+	}
+
+	@Override
+	public void removedFromSelection(int id, boolean isActive) {
+		adapter.removedFromSelection(id);
+	}
+
+
+	@Override
 	public void addedToBookmarks(int id, boolean isActive) {
 		if (isActive) {
 			btnCheckBookmark.setImageResource(R.drawable.ic_bookmark);
@@ -766,11 +827,17 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void showProgress() {
+
 		progressBar.setVisibility(View.VISIBLE);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+				WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 	}
 
 	@Override
 	public void hideProgress() {
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 		progressBar.setVisibility(View.GONE);
 	}
 
@@ -789,6 +856,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
 
+
+	@Override
+	public void showMessage(String text) {
+		Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+	}
+
 	public void setRecordName(final long recordId, File file) {
 		//Create dialog layout programmatically.
 		LinearLayout container = new LinearLayout(getApplicationContext());
@@ -798,11 +871,13 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				LinearLayout.LayoutParams.WRAP_CONTENT);
 		container.setLayoutParams(containerLp);
 
+        final EditText patient_id = new EditText(getApplicationContext());
 		final EditText editText = new EditText(getApplicationContext());
 		ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT);
 		editText.setLayoutParams(lp);
+        patient_id.setLayoutParams(lp);
 		editText.addTextChangedListener(new TextWatcher() {
 			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 			@Override public void afterTextChanged(Editable s) {
@@ -814,15 +889,23 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		});
 		editText.setTextColor(getResources().getColor(R.color.text_primary_light));
 		editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_medium));
+        patient_id.setTextColor(getResources().getColor(R.color.text_primary_light));
+        patient_id.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_medium));
 
 		int pad = (int) getResources().getDimension(R.dimen.spacing_normal);
 		ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(editText.getLayoutParams());
 		params.setMargins(pad, pad, pad, pad);
 		editText.setLayoutParams(params);
+        patient_id.setLayoutParams(params);
+        patient_id.setHint(R.string.patient_id_hint);
+        patient_id.setHintTextColor(getResources().getColor(R.color.white));
 		container.addView(editText);
+        container.addView(patient_id);
 
 		final String fileName = FileUtil.removeFileExtension(file.getName());
 		editText.setText(fileName);
+		patient_id.setText(presenter.getActiveRecordPatientId());
+
 
 		AlertDialog alertDialog = new AlertDialog.Builder(this)
 				.setTitle(R.string.record_name)
@@ -830,8 +913,14 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				.setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						String newName = editText.getText().toString();
-						if (!fileName.equalsIgnoreCase(newName)) {
-							presenter.renameRecord(recordId, newName);
+                        String patientID = patient_id.getText().toString();
+                        if(!fileName.equalsIgnoreCase(newName))
+						{
+							presenter.renameRecord(recordId, newName,patientID);
+							presenter.loadRecords();
+						}
+                        else if(!patientID.isEmpty()){
+							presenter.updatePatientID(patientID, recordId);
 							presenter.loadRecords();
 						}
 						dialog.dismiss();

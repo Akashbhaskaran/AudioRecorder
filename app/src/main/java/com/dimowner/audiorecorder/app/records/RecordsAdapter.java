@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.app.records;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -27,7 +28,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -51,6 +55,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	private ItemClickListener itemClickListener;
 	private OnAddToBookmarkListener onAddToBookmarkListener = null;
+	private OnAddToSelectionListener onAddToSelectionListener = null;
 	private OnItemOptionListener onItemOptionListener = null;
 
 	RecordsAdapter() {
@@ -109,6 +114,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_NORMAL) {
 			final ItemViewHolder holder = (ItemViewHolder) viewHolder;
 			final int p = holder.getAdapterPosition();
+
 			holder.name.setText(data.get(p).getName());
 			holder.description.setText(data.get(p).getDurationStr());
 			holder.created.setText(data.get(p).getAddedTimeStr());
@@ -123,6 +129,22 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 				holder.view.setBackgroundResource(android.R.color.transparent);
 			}
 
+			holder.selected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+				@Override
+				public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+					Log.e("onchecked changed",String.valueOf(b));
+
+					if (onAddToSelectionListener != null && data.size() > p) {
+						if(!b) {
+							Log.e("onchecked change inside",String.valueOf(b));
+							onAddToSelectionListener.onRemoveFromSelection((int) data.get(p).getId());
+						} else {
+							Log.e("onchecked changed",String.valueOf(b));
+							onAddToSelectionListener.onAddToSelection((int) data.get(p).getId());
+						}
+					}
+				}
+			});
 			holder.btnBookmark.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -143,7 +165,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			});
 			holder.waveformView.setWaveform(data.get(p).getAmps());
 
-			holder.view.setOnClickListener(new View.OnClickListener() {
+			holder.playBtn.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
 					if (itemClickListener != null && data.size() > p) {
 						int lpos = viewHolder.getLayoutPosition();
@@ -362,6 +384,24 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		}
 	}
 
+	void addedToSelection(int id) {
+		for (int i = 0; i < data.size(); i++) {
+			if (data.get(i).getId() == id) {
+				data.get(i).setSelected(1);
+				notifyItemChanged(i);
+			}
+		}
+	}
+
+	void removedFromSelection(int id) {
+		for (int i = 0; i < data.size(); i++) {
+			if (data.get(i).getId() == id) {
+				data.get(i).setSelected(0);
+				notifyItemChanged(i);
+			}
+		}
+	}
+
 	void markRemovedFromBookmarks(int id) {
 		for (int i = 0; i < data.size(); i++) {
 			if (data.get(i).getId() == id) {
@@ -393,6 +433,10 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	void setOnAddToBookmarkListener(OnAddToBookmarkListener onAddToBookmarkListener) {
 		this.onAddToBookmarkListener = onAddToBookmarkListener;
 	}
+	void setOnAddToSelectionListener(OnAddToSelectionListener onAddToSelectionListener) {
+		this.onAddToSelectionListener = onAddToSelectionListener;
+	}
+
 
 	public interface ItemClickListener{
 		void onItemClick(View view, long id, String path, int position);
@@ -407,6 +451,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		void onRemoveFromBookmarks(int id);
 	}
 
+	public interface OnAddToSelectionListener {
+		void onAddToSelection(int id);
+		void onRemoveFromSelection(int id);
+	}
+
 	public interface OnItemOptionListener {
 		void onItemOptionSelected(int menuId, ListItem item);
 	}
@@ -417,18 +466,22 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		TextView created;
 		ImageButton btnBookmark;
 		ImageButton btnMore;
+		ImageView playBtn;
 		SimpleWaveformView waveformView;
 		View view;
+		CheckBox selected;
 
 		ItemViewHolder(View itemView) {
 			super(itemView);
 			view = itemView;
+			playBtn = itemView.findViewById(R.id.item_play_btn);
 			name = itemView.findViewById(R.id.list_item_name);
 			description = itemView.findViewById(R.id.list_item_description);
 			created = itemView.findViewById(R.id.list_item_date);
 			btnBookmark = itemView.findViewById(R.id.list_item_bookmark);
 			waveformView = itemView.findViewById(R.id.list_item_waveform);
 			btnMore = itemView.findViewById(R.id.list_item_more);
+			selected = itemView.findViewById(R.id.list_item_selection);
 		}
 	}
 

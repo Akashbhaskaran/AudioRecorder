@@ -84,7 +84,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 		adapter.setOnItemClickListener(new LostRecordsAdapter.OnItemClickListener() {
 			@Override
 			public void onItemClick(RecordItem record) {
-				presenter.onRecordInfo(record.getName(), record.getDuration(), record.getPath(), record.getCreated());
+				presenter.onRecordInfo(record.getName(), record.getDuration(), record.getPath(), record.getCreated(),record.getPatient_id(),record.getDept());
 			}
 
 			@Override
@@ -187,4 +187,11 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 	public void showMessage(int resId) {
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
+
+	@Override
+	public void showMessage(String text) {
+		Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+	}
+
+
 }
